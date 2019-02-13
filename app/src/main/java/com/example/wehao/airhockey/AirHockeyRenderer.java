@@ -15,6 +15,7 @@ import static android.opengl.GLES20.GL_FLOAT;
 import static android.opengl.GLES20.GL_LINES;
 import static android.opengl.GLES20.GL_POINTS;
 import static android.opengl.GLES20.GL_TRIANGLES;
+import static android.opengl.GLES20.GL_TRIANGLE_FAN;
 import static android.opengl.GLES20.glClear;
 import static android.opengl.GLES20.glClearColor;
 import static android.opengl.GLES20.glDrawArrays;
@@ -29,33 +30,35 @@ import static android.opengl.GLES20.glViewport;
 public class AirHockeyRenderer implements GLSurfaceView.Renderer {
 
     private final static int POSITION_COMPONENT_COUNT = 2;
+    private final static int COLOR_COMPONENT_COUNT = 3;
     private final static int BYTES_PER_FLOAT = 4;
     private FloatBuffer vertexData;
     private final Context mContext;
     private int mProgram;
-    private final static String U_COLOR = "u_Color";
-    private int uColorLocation;
     private final static String A_POSITION = "a_Position";
+    private final static String A_COLOR = "a_Color";
     private int aPositionLocation;
+    private int aColorLocation;
+    private int STRIDE = (POSITION_COMPONENT_COUNT + COLOR_COMPONENT_COUNT) * BYTES_PER_FLOAT;
 
     public AirHockeyRenderer(Context context) {
         mContext = context;
 
         float[] tableVertices = {
-                // Triangle 1
-                -0.5f, -0.5f,
-                0.5f, 0.5f,
-                -0.5f, 0.5f,
-                // Triangle 2
-                -0.5f, -0.5f,
-                0.5f, -0.5f,
-                0.5f, 0.5f,
+                // Order of coordinates: X, Y, R, G, B
+                // Triangle Fan
+                0f, 0f, 1f, 1f, 1f,
+                -0.5f, -0.5f, 0.7f, 0.7f, 0.7f,
+                0.5f, -0.5f, 0.7f, 0.7f, 0.7f,
+                0.5f, 0.5f, 0.7f, 0.7f, 0.7f,
+                -0.5f, 0.5f, 0.7f, 0.7f, 0.7f,
+                -0.5f, -0.5f, 0.7f, 0.7f, 0.7f,
                 // Line 1
-                -0.5f, 0f,
-                0.5f, 0f,
+                -0.5f, 0f, 1f, 0f, 0f,
+                0.5f, 0f, 1f, 0f, 0f,
                 // Mallets
-                0f, -0.25f,
-                0f, 0.25f
+                0f, -0.25f, 0f, 0f, 1f,
+                0f, 0.25f, 1f, 0f, 0f
         };
 
         vertexData = ByteBuffer.allocateDirect(tableVertices.length * BYTES_PER_FLOAT)
@@ -79,12 +82,18 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
 
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-        uColorLocation = glGetUniformLocation(mProgram, U_COLOR);
         aPositionLocation = glGetAttribLocation(mProgram, A_POSITION);
+        aColorLocation = glGetAttribLocation(mProgram, A_COLOR);
+
         vertexData.position(0);
         glVertexAttribPointer(aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false,
-                0, vertexData);
+                STRIDE, vertexData);
         glEnableVertexAttribArray(aPositionLocation);
+
+        vertexData.position(POSITION_COMPONENT_COUNT);
+        glVertexAttribPointer(aColorLocation, COLOR_COMPONENT_COUNT, GL_FLOAT, false,
+                STRIDE, vertexData);
+        glEnableVertexAttribArray(aColorLocation);
     }
 
     @Override
@@ -96,16 +105,12 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 gl) {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUniform4f(uColorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 6);
 
-        glUniform4f(uColorLocation, 1.0f, 0.0f, 0.0f, 1.0f);
         glDrawArrays(GL_LINES, 6, 2);
 
-        glUniform4f(uColorLocation, 0.0f, 0.0f, 1.0f, 1.0f);
         glDrawArrays(GL_POINTS, 8, 1);
 
-        glUniform4f(uColorLocation, 1.0f, 0.0f, 0.0f, 1.0f);
         glDrawArrays(GL_POINTS, 9, 1);
     }
 }
