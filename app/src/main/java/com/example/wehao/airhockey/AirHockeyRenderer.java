@@ -55,23 +55,7 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
                 0.5f, 0f,
                 // Mallets
                 0f, -0.25f,
-                0f, 0.25f,
-                //Triangle3
-                -0.5f, 0.25f,
-                -0.25f, 0.5f,
-                -0.5f, 0.5f,
-                //Triangle4
-                -0.5f, 0.25f,
-                -0.25f, 0.25f,
-                -0.25f, 0.5f,
-                //Triangle5
-                0.25f, 0.25f,
-                0.5f, 0.5f,
-                0.25f, 0.5f,
-                //Triangle6
-                0.25f, 0.25f,
-                0.5f, 0.25f,
-                0.5f, 0.5f
+                0f, 0.25f
         };
 
         vertexData = ByteBuffer.allocateDirect(tableVertices.length * BYTES_PER_FLOAT)
@@ -123,11 +107,5 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
 
         glUniform4f(uColorLocation, 1.0f, 0.0f, 0.0f, 1.0f);
         glDrawArrays(GL_POINTS, 9, 1);
-
-        glUniform4f(uColorLocation, 1.0f, 0.0f, 0.0f, 1.0f);
-        glDrawArrays(GL_TRIANGLES, 10, 6);
-
-        glUniform4f(uColorLocation, 0.0f, 1.0f, 0.0f, 1.0f);
-        glDrawArrays(GL_TRIANGLES, 16, 6);
     }
 }
